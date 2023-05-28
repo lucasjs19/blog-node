@@ -55,4 +55,47 @@ router.post("/articles/delete", (req, res) => {
     }
 })
 
+router.get("/admin/articles/edit/:slug", (req, res) => {
+    var slug = req.params.slug
+
+    Article.findOne({
+        where:{
+            slug:slug
+        },
+        
+    }).then(article => {
+        if(article != undefined){
+            Category.findAll().then(categories => {
+                res.render("./admin/articles/edit", {categories: categories, article: article})
+            })
+         }else{
+            console.log("else")
+             res.redirect("/admin/articles")
+         }
+     }).catch( err => {
+        console.log(err)
+         res.redirect("/admin/articles")
+     })
+ })
+
+ router.post("/articles/update", (req,res) =>{
+    var id = req.body.id
+    var title = req.body.title
+    var body = req.body.body 
+    var categoryId = req.body.categoryId
+    console.log(categoryId)
+
+    Article.update(
+        {title: title,
+        slug: slugify(title),
+        body: body,
+        categoryId: categoryId
+        }, 
+        {where: {
+            id:id
+        }}).then(() => {
+            res.redirect("/admin/articles")
+        })
+})
+
 module.exports = router
