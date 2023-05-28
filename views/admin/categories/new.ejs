@@ -8,10 +8,10 @@
         </div>
 
         <div class="card-body">
-            <form>
-            <input class = "form-control" type="text" placeholder="Título da categoria">
-            <br>
-            <button class="btn btn-success">Cadastrar</button>
+            <form method="POST" action="/categories/save">
+                <input class = "form-control" type="text" placeholder="Título da categoria"  name ="title">
+                <br>
+                <button class="btn btn-success">Cadastrar</button>
             </form>
         </div>
 
