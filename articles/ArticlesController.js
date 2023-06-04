@@ -25,7 +25,6 @@ router.post("/articles/save", (req,res) =>{
     var body = req.body.body 
     var category = req.body.category 
     
-    console.log(category)
     Article.create({
         title: title,
         slug: slugify(title),
@@ -69,11 +68,9 @@ router.get("/admin/articles/edit/:slug", (req, res) => {
                 res.render("./admin/articles/edit", {categories: categories, article: article})
             })
          }else{
-            console.log("else")
              res.redirect("/admin/articles")
          }
      }).catch( err => {
-        console.log(err)
          res.redirect("/admin/articles")
      })
  })
@@ -83,7 +80,6 @@ router.get("/admin/articles/edit/:slug", (req, res) => {
     var title = req.body.title
     var body = req.body.body 
     var categoryId = req.body.categoryId
-    console.log(categoryId)
 
     Article.update(
         {title: title,
@@ -96,6 +92,43 @@ router.get("/admin/articles/edit/:slug", (req, res) => {
         }}).then(() => {
             res.redirect("/admin/articles")
         })
+})
+
+router.get("/articles/page/:num", (req, res) => {
+    var page = req.params.num;
+    var offset = 0
+    
+    if (page == 0){
+        page = 1
+    }
+    else if(isNaN(page) || page == 1){
+        offset = 0
+    }else{
+        offset = (parseInt(page) -1) * 4
+    }
+
+    Article.findAndCountAll({
+        limit: 4,
+        offset: offset,
+        order: [['id', 'DESC']]
+    }).then(articles => {
+        var next
+        if(offset + 4 >= articles.count){
+            next = false
+        }else{
+            next = true
+        }
+
+        var result = {
+            page: parseInt(page),
+            next: next,
+            articles: articles
+        }
+
+        Category.findAll().then(categories => {
+            res.render("admin/articles/page", {result: result, categories: categories})
+        })
+    })
 })
 
 module.exports = router
